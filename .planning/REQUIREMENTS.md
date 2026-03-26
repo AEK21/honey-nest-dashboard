@@ -108,12 +108,35 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| *(populated by roadmap)* | | |
+| FOUND-01 | Phase 1 | Pending |
+| FOUND-02 | Phase 1 | Pending |
+| FOUND-03 | Phase 1 | Pending |
+| ENTRY-01 | Phase 2 | Pending |
+| ENTRY-02 | Phase 2 | Pending |
+| ENTRY-04 | Phase 2 | Pending |
+| ENTRY-05 | Phase 2 | Pending |
+| ENTRY-06 | Phase 2 | Pending |
+| ENTRY-07 | Phase 2 | Pending |
+| DASH-01 | Phase 3 | Pending |
+| DASH-02 | Phase 3 | Pending |
+| DASH-03 | Phase 3 | Pending |
+| DASH-04 | Phase 3 | Pending |
+| DASH-05 | Phase 3 | Pending |
+| DASH-06 | Phase 3 | Pending |
+| DASH-07 | Phase 3 | Pending |
+| ENTRY-03 | Phase 4 | Pending |
+| PARTY-01 | Phase 4 | Pending |
+| PARTY-02 | Phase 4 | Pending |
+| DASH-08 | Phase 4 | Pending |
+| STOCK-01 | Phase 5 | Pending |
+| STOCK-02 | Phase 5 | Pending |
+| STOCK-03 | Phase 5 | Pending |
+| SUPP-01 | Phase 5 | Pending |
 
 **Coverage:**
-- v1 requirements: 20 total
-- Mapped to phases: 0
-- Unmapped: 20 ⚠️
+- v1 requirements: 20 total (unique) + ENTRY-03 and DASH-08 mapped to Phase 4
+- Mapped to phases: 20
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-27*
