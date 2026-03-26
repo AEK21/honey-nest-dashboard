@@ -41,13 +41,26 @@ The owner can enter daily business data quickly and see clear revenue, cost, and
 ## Context
 
 - **Business structure:** Two connected areas sharing some operations. Retail sells physical products (concept store). Playroom charges entry fees, runs a café (food/drinks), and hosts parties (package + extras pricing).
+- **Physical space:** Ground floor = café/bar + concept store. First floor = playroom, kitchen, family area. Internal zones: "Hive Room" (events/workshops), "The Nest" (upstairs kids area).
 - **Current state:** No formal tracking system. Manual methods (spreadsheets, notebooks). No POS system.
 - **Data entry:** Owner is sole user — data entry must be fast and frictionless since there's no staff doing it.
 - **Income categories:** Organized by product type (food, drinks, toys, entry fees, party packages) rather than by business area.
 - **Cost tracking approach:** Per-item cost where available, category-based margin percentage as fallback. Both methods supported.
-- **Party model:** Base package price + configurable add-ons (food, decorations, etc.).
+- **Party model:** Base package price + configurable add-ons (food, decorations, etc.). Parties are a high-value revenue stream — premium but warm styling.
+- **Retail identity:** Curated concept store (Little Dutch, Legami, Studio Roof, etc.) — high-margin, design-driven, giftable products. Not generic children's commerce.
 - **Viber context:** End-of-day Viber messages contain order lists (customer names + items + quantities). Parsing planned for future but not v1 blocker.
 - **Primary KPI view:** Monthly trend (how this month tracks vs. last month) is what the owner wants to see first.
+- **Brand Bible:** See `docs/brand/Honey_Nest_Brand_Bible_v1_1.md` for full brand context. Dashboard should reflect brand tone (warm, premium, calm) without being a marketing site.
+
+## Brand Context (Dashboard Application)
+
+The dashboard is an internal tool, not customer-facing. Brand Bible applies as follows:
+
+- **Color palette:** Use Honey Nest colors for UI chrome — Soft Ivory (#F8F5EF) backgrounds, Deep Soft Brown (#5F5247) text, Honey Yellow (#E7C76A) accents, Dusty Mint (#BFD8D2) for secondary elements. Warm, not sterile.
+- **Typography:** Inter for UI/body (clean, readable). Cormorant Garamond optional for dashboard headers if it feels right. No harsh tech fonts.
+- **UI feel:** Rounded corners, soft cards, generous whitespace, subtle shadows. Premium simplicity — not a generic admin panel. The owner should enjoy using it.
+- **Tone:** Labels and copy should feel warm and clear, not corporate. "Today's overview" not "Daily Report Generator."
+- **What to avoid:** Harsh black backgrounds, neon accents, cluttered layouts, generic SaaS aesthetics, aggressive data-dense tables without breathing room.
 
 ## Constraints
 
