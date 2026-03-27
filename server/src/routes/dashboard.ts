@@ -5,7 +5,7 @@ import { db } from '../db'
 const dashboardRoute = new Hono()
 
 const monthRegex = /^\d{4}-\d{2}$/
-const validAreas = ['all', 'retail', 'playroom_cafe'] as const
+const validAreas = ['all', 'retail', 'playroom_cafe', 'parties'] as const
 
 function parseArea(raw: string | undefined) {
   if (!raw || !validAreas.includes(raw as (typeof validAreas)[number])) return 'all'
@@ -15,6 +15,32 @@ function parseArea(raw: string | undefined) {
 function areaFilter(area: string) {
   if (area === 'all') return sql``
   return sql`AND c.business_area = ${area}`
+}
+
+async function partyRevenueForRange(start: string, end: string): Promise<number> {
+  const rows = await db.all<{ revenue: number }>(sql`
+    SELECT COALESCE(SUM(p.package_price), 0) + COALESCE(SUM(at.addon_total), 0) as revenue
+    FROM parties p
+    LEFT JOIN (
+      SELECT party_id, SUM(addon_price) as addon_total FROM party_addons GROUP BY party_id
+    ) at ON at.party_id = p.id
+    WHERE p.party_date >= ${start} AND p.party_date <= ${end} AND p.status = 'completed'
+  `)
+  return rows[0]?.revenue ?? 0
+}
+
+async function partyRevenueByDay(start: string, end: string) {
+  return db.all<{ date: string; revenue: number }>(sql`
+    SELECT p.party_date as date,
+      COALESCE(SUM(p.package_price), 0) + COALESCE(SUM(at.addon_total), 0) as revenue
+    FROM parties p
+    LEFT JOIN (
+      SELECT party_id, SUM(addon_price) as addon_total FROM party_addons GROUP BY party_id
+    ) at ON at.party_id = p.id
+    WHERE p.party_date >= ${start} AND p.party_date <= ${end} AND p.status = 'completed'
+    GROUP BY p.party_date
+    ORDER BY p.party_date
+  `)
 }
 
 // ── Summary ─────────────────────────────────────────────────────
@@ -99,13 +125,23 @@ dashboardRoute.get('/summary', async (c) => {
       AND c.active = 1 ${af}
   `)
 
-  const todayRevenue = todayResult[0]?.total ?? 0
-  const mtdRevenue = mtdResult[0]?.total ?? 0
+  let todayRevenue = todayResult[0]?.total ?? 0
+  let mtdRevenue = mtdResult[0]?.total ?? 0
   const mtdCost = mtdCostResult[0]?.total ?? 0
-  const mtdProfit = mtdRevenue - mtdCost
   const profitBasis = mtdCostResult[0]?.allExact === 1 ? 'exact' : 'estimated'
-  const prevMonthRevenue = prevRevResult[0]?.total ?? 0
+  let prevMonthRevenue = prevRevResult[0]?.total ?? 0
   const prevMonthCost = prevCostResult[0]?.total ?? 0
+
+  // Include party revenue when area is 'all' or 'parties'
+  // (When area='parties', daily_entries queries return 0 naturally since no category has business_area='parties')
+  if (area === 'all' || area === 'parties') {
+    todayRevenue += await partyRevenueForRange(today, today)
+    mtdRevenue += await partyRevenueForRange(monthStart, monthEnd)
+    prevMonthRevenue += await partyRevenueForRange(prevStart, prevEnd)
+  }
+
+  // Parties have no cost tracking in MVP, so party revenue is pure profit
+  const mtdProfit = mtdRevenue - mtdCost
   const prevMonthProfit = prevMonthRevenue - prevMonthCost
 
   const revenueDelta = prevMonthRevenue > 0
@@ -168,6 +204,40 @@ dashboardRoute.get('/trend', async (c) => {
     GROUP BY d.entry_date
     ORDER BY d.entry_date
   `)
+
+  // Merge party revenue into trend when applicable
+  if (area === 'all' || area === 'parties') {
+    const partyCurrentMonth = await partyRevenueByDay(monthStart, monthEnd)
+    const partyPrevMonth = await partyRevenueByDay(prevStart, prevEnd)
+
+    const mergeRevenue = (
+      dailyRows: { date: string; revenue: number }[],
+      partyRows: { date: string; revenue: number }[]
+    ) => {
+      const map = new Map<string, number>()
+      for (const r of dailyRows) map.set(r.date, (map.get(r.date) ?? 0) + r.revenue)
+      for (const r of partyRows) map.set(r.date, (map.get(r.date) ?? 0) + r.revenue)
+      return [...map.entries()]
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([date, revenue]) => ({ date, revenue }))
+    }
+
+    const mergedCurrent = mergeRevenue(currentMonth, partyCurrentMonth)
+    const mergedPrev = mergeRevenue(previousMonth, partyPrevMonth)
+
+    return c.json({
+      currentMonth: mergedCurrent.map((r) => ({
+        day: parseInt(r.date.split('-')[2], 10),
+        date: r.date,
+        revenue: r.revenue,
+      })),
+      previousMonth: mergedPrev.map((r) => ({
+        day: parseInt(r.date.split('-')[2], 10),
+        date: r.date,
+        revenue: r.revenue,
+      })),
+    })
+  }
 
   return c.json({
     currentMonth: currentMonth.map((r) => ({
@@ -260,6 +330,55 @@ dashboardRoute.get('/kids', async (c) => {
   `)
 
   return c.json({ entries: rows })
+})
+
+// ── Parties ─────────────────────────────────────────────────────
+// GET /parties?month=YYYY-MM
+dashboardRoute.get('/parties', async (c) => {
+  const month = c.req.query('month')
+  if (!month || !monthRegex.test(month)) {
+    return c.json({ error: 'month query param required (YYYY-MM)' }, 400)
+  }
+
+  const monthStart = `${month}-01`
+  const [y, m] = month.split('-').map(Number)
+  const monthEndDate = new Date(y, m, 0)
+  const monthEnd = monthEndDate.toISOString().slice(0, 10)
+
+  // Only completed parties count as revenue
+  const partyStats = await db.all<{
+    partyCount: number
+    packageRevenue: number
+  }>(sql`
+    SELECT
+      COUNT(*) as partyCount,
+      COALESCE(SUM(package_price), 0) as packageRevenue
+    FROM parties
+    WHERE party_date >= ${monthStart} AND party_date <= ${monthEnd}
+      AND status = 'completed'
+  `)
+
+  // Add-on revenue for completed parties
+  const addonStats = await db.all<{ addonRevenue: number }>(sql`
+    SELECT COALESCE(SUM(pa.addon_price), 0) as addonRevenue
+    FROM party_addons pa
+    JOIN parties p ON p.id = pa.party_id
+    WHERE p.party_date >= ${monthStart} AND p.party_date <= ${monthEnd}
+      AND p.status = 'completed'
+  `)
+
+  const partyCount = partyStats[0]?.partyCount ?? 0
+  const packageRevenue = partyStats[0]?.packageRevenue ?? 0
+  const addonRevenue = addonStats[0]?.addonRevenue ?? 0
+  const totalRevenue = packageRevenue + addonRevenue
+
+  return c.json({
+    partyCount,
+    packageRevenue,
+    addonRevenue,
+    totalRevenue,
+    avgPerParty: partyCount > 0 ? totalRevenue / partyCount : 0,
+  })
 })
 
 export default dashboardRoute

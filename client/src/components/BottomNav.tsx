@@ -1,8 +1,9 @@
 import { useLocation, useNavigate } from 'react-router-dom'
-import { PenLine, BarChart3 } from 'lucide-react'
+import { PenLine, Cake, BarChart3 } from 'lucide-react'
 
 const tabs = [
   { path: '/', label: 'Entry', icon: PenLine },
+  { path: '/parties', label: 'Parties', icon: Cake },
   { path: '/dashboard', label: 'Dashboard', icon: BarChart3 },
 ] as const
 

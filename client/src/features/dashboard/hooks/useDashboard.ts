@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useState, useCallback } from 'react'
 import { format, addMonths, subMonths, isSameMonth } from 'date-fns'
 
-export type AreaFilter = 'all' | 'retail' | 'playroom_cafe'
+export type AreaFilter = 'all' | 'retail' | 'playroom_cafe' | 'parties'
 
 interface SummaryResponse {
   todayRevenue: number

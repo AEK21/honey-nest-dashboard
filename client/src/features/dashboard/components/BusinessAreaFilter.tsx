@@ -9,6 +9,7 @@ const options: { value: AreaFilter; label: string; disabled?: boolean }[] = [
   { value: 'all', label: 'All' },
   { value: 'retail', label: 'Retail' },
   { value: 'playroom_cafe', label: 'Playroom & Caf\u00e9' },
+  { value: 'parties', label: 'Parties' },
 ]
 
 export function BusinessAreaFilter({ value, onChange }: BusinessAreaFilterProps) {

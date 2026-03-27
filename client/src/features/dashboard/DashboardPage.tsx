@@ -8,6 +8,8 @@ import { RevenueTrendChart } from './components/RevenueTrendChart'
 import { CategoryBreakdownChart } from './components/CategoryBreakdownChart'
 import { KidsTrendChart } from './components/KidsTrendChart'
 import { ProfitBreakdown } from './components/ProfitBreakdown'
+import { PartyRevenueSummary } from './components/PartyRevenueSummary'
+import { usePartyDashboard } from './hooks/usePartyDashboard'
 
 export function DashboardPage() {
   const {
@@ -16,6 +18,8 @@ export function DashboardPage() {
     summary, isLoading,
   } = useDashboard()
   const { trend, categories, kids } = useChartData(month, area)
+  const partyDash = usePartyDashboard(month)
+  const showPartyWidget = area === 'all' || area === 'parties'
   const monthLabel = format(monthDate, 'MMMM yyyy')
 
   return (
@@ -87,15 +91,29 @@ export function DashboardPage() {
           previousMonth={trend?.previousMonth ?? []}
         />
 
-        <CategoryBreakdownChart
-          categories={categories?.categories ?? []}
-        />
+        {showPartyWidget && partyDash.data && (
+          <PartyRevenueSummary
+            partyCount={partyDash.data.partyCount}
+            packageRevenue={partyDash.data.packageRevenue}
+            addonRevenue={partyDash.data.addonRevenue}
+            totalRevenue={partyDash.data.totalRevenue}
+            avgPerParty={partyDash.data.avgPerParty}
+          />
+        )}
 
-        <ProfitBreakdown
-          categories={categories?.categories ?? []}
-        />
+        {area !== 'parties' && (
+          <>
+            <CategoryBreakdownChart
+              categories={categories?.categories ?? []}
+            />
 
-        <KidsTrendChart entries={kids?.entries ?? []} />
+            <ProfitBreakdown
+              categories={categories?.categories ?? []}
+            />
+
+            <KidsTrendChart entries={kids?.entries ?? []} />
+          </>
+        )}
       </div>
     </div>
   )
