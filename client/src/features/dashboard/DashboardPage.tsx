@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Download } from 'lucide-react'
+import { usePageTitle } from '../../hooks/usePageTitle'
 import { useDashboard } from './hooks/useDashboard'
 import { useChartData } from './hooks/useChartData'
 import { KpiCard } from './components/KpiCard'
@@ -20,6 +21,7 @@ export function DashboardPage() {
   const { trend, categories, kids } = useChartData(month, area)
   const partyDash = usePartyDashboard(month)
   const showPartyWidget = area === 'all' || area === 'parties'
+  usePageTitle('Dashboard')
   const monthLabel = format(monthDate, 'MMMM yyyy')
 
   return (
@@ -55,6 +57,13 @@ export function DashboardPage() {
           >
             <ChevronRight className="w-4 h-4" />
           </button>
+          <button
+            onClick={() => window.open(`/api/export/entries?month=${month}`, '_blank')}
+            className="ml-auto flex items-center gap-1 text-[11px] font-medium text-[#7A6F63] hover:text-[#C4B8A8] transition-colors"
+          >
+            <Download className="w-3 h-3" />
+            Export CSV
+          </button>
         </div>
       </div>
 
@@ -85,6 +94,14 @@ export function DashboardPage() {
             badge={summary?.profitBasis ?? null}
           />
         </div>
+
+        {!isLoading && summary && summary.todayRevenue === 0 && summary.mtdRevenue === 0 && summary.mtdProfit === 0 && (
+          <p className="text-[12px] text-[#7A6F63] text-center">
+            {area === 'parties'
+              ? 'No completed parties yet this month'
+              : 'No data yet \u2014 enter today\u2019s numbers to get started'}
+          </p>
+        )}
 
         <RevenueTrendChart
           currentMonth={trend?.currentMonth ?? []}

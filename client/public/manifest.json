@@ -1,0 +1,26 @@
+{
+  "name": "Honey Nest Dashboard",
+  "short_name": "Honey Nest",
+  "description": "Business dashboard for Honey Nest",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1C1917",
+  "theme_color": "#E7C76A",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

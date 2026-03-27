@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#1C1917"/>
+  <g transform="translate(256,256)">
+    <!-- Honeycomb hexagon -->
+    <polygon points="0,-120 104,-60 104,60 0,120 -104,60 -104,-60" fill="none" stroke="#E7C76A" stroke-width="16" stroke-linejoin="round"/>
+    <!-- Inner hexagon -->
+    <polygon points="0,-65 56,-32.5 56,32.5 0,65 -56,32.5 -56,-32.5" fill="#E7C76A" opacity="0.25"/>
+    <!-- H letter -->
+    <text x="0" y="18" text-anchor="middle" font-family="serif" font-weight="700" font-size="110" fill="#E7C76A">H</text>
+  </g>
+</svg>

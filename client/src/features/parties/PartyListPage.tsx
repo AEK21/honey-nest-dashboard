@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
+import { usePageTitle } from '../../hooks/usePageTitle'
+import { ChevronLeft, ChevronRight, Plus, Download } from 'lucide-react'
 import { toast } from 'sonner'
 import { useParties } from './hooks/useParties'
 import type { Party, PartyFormData } from './hooks/useParties'
@@ -9,7 +10,7 @@ import { PartyForm } from './components/PartyForm'
 
 export function PartyListPage() {
   const {
-    monthDate, isCurrentMonth,
+    month, monthDate, isCurrentMonth,
     goToPrevMonth, goToNextMonth, goToCurrentMonth,
     parties, isLoading,
     create, update, remove, isSaving,
@@ -18,6 +19,7 @@ export function PartyListPage() {
   const [formOpen, setFormOpen] = useState(false)
   const [editingParty, setEditingParty] = useState<Party | null>(null)
 
+  usePageTitle('Parties')
   const monthLabel = format(monthDate, 'MMMM yyyy')
 
   // Group parties by date
@@ -108,6 +110,13 @@ export function PartyListPage() {
             className="text-[#7A6F63] hover:text-[#C4B8A8] transition-colors p-0.5"
           >
             <ChevronRight className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => window.open(`/api/export/parties?month=${month}`, '_blank')}
+            className="ml-auto flex items-center gap-1 text-[11px] font-medium text-[#7A6F63] hover:text-[#C4B8A8] transition-colors"
+          >
+            <Download className="w-3 h-3" />
+            Export
           </button>
         </div>
       </div>

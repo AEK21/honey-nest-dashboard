@@ -6,12 +6,12 @@ Build an internal business dashboard for Honey Nest from the ground up. Start wi
 
 ## Phases
 
-- [ ] **Phase 1: Foundation & Data Model** - Scaffold the full-stack project and design the normalized database schema
-- [ ] **Phase 2: Daily Data Entry** - Build entry forms for all business areas with fast, frictionless input
-- [ ] **Phase 3: Dashboard & Analytics** - Build the main analytics dashboard with KPIs, trends, and charts
-- [ ] **Phase 4: Party Tracking** - Party entry with packages and add-ons, party revenue views
-- [ ] **Phase 5: Stock & Suppliers** - Product list, stock levels, low-stock alerts, supplier directory
-- [ ] **Phase 6: Polish & Integration** - Tie modules together, refine UX, apply brand styling, empty states
+- [x] **Phase 1: Foundation & Data Model** - Scaffold the full-stack project and design the normalized database schema (441d77e)
+- [x] **Phase 2: Daily Data Entry** - Build entry forms for all business areas with fast, frictionless input (9f53bb8)
+- [x] **Phase 3: Dashboard & Analytics** - Build the main analytics dashboard with KPIs, trends, and charts (a6da68f)
+- [x] **Phase 4: Party Tracking** - Party entry with packages and add-ons, party revenue views (e32ec8a)
+- [ ] **Phase 5: Operational Polish** - CSV export, PWA installability, empty states, error boundary
+- [ ] **Phase 6: Stock & Suppliers** - Product list, stock levels, low-stock alerts, supplier directory
 
 ## Phase Details
 

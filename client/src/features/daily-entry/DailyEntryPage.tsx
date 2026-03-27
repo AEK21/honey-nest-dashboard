@@ -1,5 +1,6 @@
 import { format } from 'date-fns'
 import { toast } from 'sonner'
+import { usePageTitle } from '../../hooks/usePageTitle'
 import { useDailyEntry } from './hooks/useDailyEntry'
 import type { CostState } from './hooks/useDailyEntry'
 import { DateNavBar } from './components/DateNavBar'
@@ -36,6 +37,8 @@ export function DailyEntryPage() {
     confirmSave,
     cancelNavigation,
   } = useDailyEntry()
+
+  usePageTitle('Entry')
 
   // Group entries by businessArea (skip parties — Phase 4)
   const retailEntries =
@@ -132,6 +135,14 @@ export function DailyEntryPage() {
           isLoading ? 'opacity-50' : 'opacity-100'
         }`}
       >
+        {!isLoading && !hasAnyValue && !data?.lastSaved && (
+          <div className="rounded-xl bg-[#252220] border border-[#3D3530] p-4">
+            <p className="text-[13px] text-[#9A8E82]">
+              Start by entering today's numbers — revenue fields are grouped by business area.
+            </p>
+          </div>
+        )}
+
         {retailEntries.length > 0 && (
           <RevenueSection title="Retail" accentColor="#E7C76A">
             {retailEntries.map((entry) => (
