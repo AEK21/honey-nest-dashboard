@@ -17,16 +17,15 @@ Scaffold the full-stack project (Vite + React + Hono + SQLite + Drizzle) and des
 - **D-01:** Daily sales entries use **daily totals per category** granularity — one row per day per category (e.g., "March 27, Food, €320"). No line-item transaction detail. Optimized for fast manual entry.
 - **D-02:** Party data **rolls into daily revenue** — party totals auto-add to that day's revenue under the party packages category. Party detail (base package + add-ons) stored separately but revenue flows into the daily view for unified analytics.
 - **D-03:** Cost tracking lives at **both levels** — products have individual cost prices, categories have fallback margin percentages. Dashboard uses product cost where available, category % otherwise. Every profit figure must indicate which basis was used.
-- **D-04:** Business areas (Retail, Playroom/Café, Parties) are **derived from category** — each category belongs to a business area (e.g., "Toys" → Retail, "Entry fees" → Playroom). No separate business_area field on entries needed.
-- **D-05:** Categories are **append-only** — no rename/delete operations. Historical data integrity preserved. (From FOUND-02)
+- **D-04:** Business areas (Retail, Playroom/Café, Parties) are **derived from category** — each category record has a `business_area` field (e.g., "Toys" → Retail, "Entry fees" → Playroom). Daily entries reference the category; business area is looked up through it. Safe for v1 — the business has clean separation between areas. If a category ever needs to span two areas, adding a direct field to entries is a simple migration.
+- **D-05:** Categories are **append-only** with soft management — the category ID and original slug are never altered or deleted. Categories have a mutable `display_name` (for UI labeling) and an `active` flag (false = hidden from entry forms, still visible in historical reports). Historical data integrity preserved. (From FOUND-02)
 - **D-06:** All entry records include a **`data_source`** field defaulting to `manual`. Enables Viber import in v2. (From FOUND-03)
 
 ### Project Structure
 - **D-07:** **Monorepo** layout — single repo with `/client` and `/server` folders. Shared types between frontend and backend. Single `npm run dev` starts both.
-- **D-08:** Client folder organization — **Claude's Discretion**. Claude picks feature-based or layer-based depending on what works best for this project size.
+- **D-08:** Client uses **feature/domain-oriented** folder structure: `features/daily-entry/`, `features/dashboard/`, `features/parties/`, `features/stock/`, `features/suppliers/`. Each feature owns its components, hooks, and schemas. Shared UI primitives (shadcn/ui) in `components/ui/`. Shared utilities and API client in `lib/`.
 
 ### Claude's Discretion
-- Client folder organization (feature-based vs. layer-based) — Claude has flexibility to choose the best approach
 - Category design details (specific initial categories, how they're seeded) — Claude can derive from PROJECT.md context
 - Deployment configuration — local development setup is sufficient for Phase 1; deployment target TBD
 
