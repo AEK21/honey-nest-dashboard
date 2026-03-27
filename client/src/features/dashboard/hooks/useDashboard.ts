@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
-import { format } from 'date-fns'
+import { useState, useCallback } from 'react'
+import { format, addMonths, subMonths, isSameMonth } from 'date-fns'
 
 export type AreaFilter = 'all' | 'retail' | 'playroom_cafe'
 
@@ -17,7 +17,13 @@ interface SummaryResponse {
 
 export function useDashboard() {
   const [area, setArea] = useState<AreaFilter>('all')
-  const month = format(new Date(), 'yyyy-MM')
+  const [monthDate, setMonthDate] = useState(new Date())
+  const month = format(monthDate, 'yyyy-MM')
+  const isCurrentMonth = isSameMonth(monthDate, new Date())
+
+  const goToPrevMonth = useCallback(() => setMonthDate((d) => subMonths(d, 1)), [])
+  const goToNextMonth = useCallback(() => setMonthDate((d) => addMonths(d, 1)), [])
+  const goToCurrentMonth = useCallback(() => setMonthDate(new Date()), [])
 
   const summary = useQuery<SummaryResponse>({
     queryKey: ['dashboard-summary', month, area],
@@ -31,6 +37,11 @@ export function useDashboard() {
     area,
     setArea,
     month,
+    monthDate,
+    isCurrentMonth,
+    goToPrevMonth,
+    goToNextMonth,
+    goToCurrentMonth,
     summary: summary.data,
     isLoading: summary.isLoading,
   }

@@ -47,6 +47,7 @@ export function ProfitBreakdown({ categories }: ProfitBreakdownProps) {
               <th className="text-right pb-2 font-medium">Revenue</th>
               <th className="text-right pb-2 font-medium">Cost</th>
               <th className="text-right pb-2 font-medium">Profit</th>
+              <th className="text-right pb-2 font-medium">Margin</th>
               <th className="text-center pb-2 font-medium w-8"></th>
             </tr>
           </thead>
@@ -67,6 +68,9 @@ export function ProfitBreakdown({ categories }: ProfitBreakdownProps) {
                 </td>
                 <td className="py-1.5 px-1 text-right text-[#E8E0D4] font-medium tabular-nums">
                   {'\u20AC'}{row.profit.toFixed(2)}
+                </td>
+                <td className="py-1.5 px-1 text-right text-[#7A6F63] tabular-nums">
+                  {row.revenue > 0 ? `${((row.profit / row.revenue) * 100).toFixed(1)}%` : '\u2014'}
                 </td>
                 <td className="py-1.5 text-center">
                   <span
@@ -92,6 +96,9 @@ export function ProfitBreakdown({ categories }: ProfitBreakdownProps) {
               </td>
               <td className="pt-2 px-1 text-right text-[#E8E0D4] font-semibold tabular-nums">
                 {'\u20AC'}{totalProfit.toFixed(2)}
+              </td>
+              <td className="pt-2 px-1 text-right text-[#7A6F63] font-medium tabular-nums">
+                {totalRevenue > 0 ? `${((totalProfit / totalRevenue) * 100).toFixed(1)}%` : '\u2014'}
               </td>
               <td></td>
             </tr>
