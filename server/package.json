@@ -1,0 +1,21 @@
+{
+  "name": "@honey-nest/server",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "db:seed": "tsx src/db/seed.ts"
+  },
+  "dependencies": {
+    "@honey-nest/shared": "*",
+    "hono": "^4.7.0",
+    "@hono/node-server": "^1.14.0",
+    "@libsql/client": "^0.14.0",
+    "drizzle-orm": "^0.38.0"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.30.0",
+    "tsx": "^4.19.0"
+  }
+}
