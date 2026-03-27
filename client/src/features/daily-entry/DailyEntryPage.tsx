@@ -128,7 +128,7 @@ export function DailyEntryPage() {
       />
 
       <div
-        className={`px-5 pt-6 pb-10 space-y-6 transition-opacity duration-150 ${
+        className={`px-5 pt-6 pb-24 space-y-6 transition-opacity duration-150 ${
           isLoading ? 'opacity-50' : 'opacity-100'
         }`}
       >
