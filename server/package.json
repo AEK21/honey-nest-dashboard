@@ -9,10 +9,11 @@
   },
   "dependencies": {
     "@honey-nest/shared": "*",
-    "hono": "^4.7.0",
     "@hono/node-server": "^1.14.0",
     "@libsql/client": "^0.14.0",
-    "drizzle-orm": "^0.38.0"
+    "drizzle-orm": "^0.38.0",
+    "hono": "^4.7.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "drizzle-kit": "^0.30.0",
