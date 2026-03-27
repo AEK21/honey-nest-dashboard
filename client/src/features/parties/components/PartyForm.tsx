@@ -175,11 +175,11 @@ export function PartyForm({ party, onSave, onClose, isSaving }: PartyFormProps) 
           <div className="w-[80px]">
             <Label>Age</Label>
             <Input
-              type="number"
+              type="text"
               inputMode="numeric"
               value={childAge}
               onChange={(e) => setChildAge(e.target.value.replace(/\D/g, ''))}
-              placeholder="\u2014"
+              placeholder="—"
             />
           </div>
         </div>
@@ -189,7 +189,7 @@ export function PartyForm({ party, onSave, onClose, isSaving }: PartyFormProps) 
           <div className="flex-1">
             <Label>Kids</Label>
             <Input
-              type="number"
+              type="text"
               inputMode="numeric"
               value={kidsCount}
               onChange={(e) => setKidsCount(e.target.value.replace(/\D/g, ''))}
@@ -199,7 +199,7 @@ export function PartyForm({ party, onSave, onClose, isSaving }: PartyFormProps) 
           <div className="flex-1">
             <Label>Adults</Label>
             <Input
-              type="number"
+              type="text"
               inputMode="numeric"
               value={adultsCount}
               onChange={(e) => setAdultsCount(e.target.value.replace(/\D/g, ''))}
@@ -244,39 +244,40 @@ export function PartyForm({ party, onSave, onClose, isSaving }: PartyFormProps) 
           <h3 className="text-[13px] font-medium text-[#C4B8A8] uppercase tracking-wide mb-3">
             Add-ons
           </h3>
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             {addons.map((addon) => (
-              <div key={addon.key} className="flex gap-2 items-end">
-                <div className="flex-1">
-                  {addons[0]?.key === addon.key && <Label>Name</Label>}
-                  <Input
-                    value={addon.addonName}
-                    onChange={(e) => updateAddon(addon.key, 'addonName', e.target.value)}
-                    placeholder="Pizza tray, balloons..."
-                  />
+              <div key={addon.key} className="rounded-lg bg-[#1E1B18] border border-[#3D3530]/50 p-3 space-y-2">
+                <div className="flex gap-2 items-center">
+                  <div className="flex-1">
+                    <Input
+                      value={addon.addonName}
+                      onChange={(e) => updateAddon(addon.key, 'addonName', e.target.value)}
+                      placeholder="Pizza tray, balloons..."
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeAddon(addon.key)}
+                    className="p-1.5 rounded-md text-[#7A6F63] hover:text-[#D4564E] hover:bg-[#D4564E]/10 transition-colors shrink-0"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
                 </div>
-                <div className="w-[90px]">
-                  {addons[0]?.key === addon.key && <Label>Price</Label>}
-                  <EuroInput
-                    value={addon.addonPrice}
-                    onChange={(v) => { const c = cleanDecimal(v); if (c !== null) updateAddon(addon.key, 'addonPrice', c) }}
-                  />
+                <div className="flex gap-2">
+                  <div className="w-[110px]">
+                    <EuroInput
+                      value={addon.addonPrice}
+                      onChange={(v) => { const c = cleanDecimal(v); if (c !== null) updateAddon(addon.key, 'addonPrice', c) }}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <Input
+                      value={addon.category}
+                      onChange={(e) => updateAddon(addon.key, 'category', e.target.value)}
+                      placeholder="Type (food, decor...)"
+                    />
+                  </div>
                 </div>
-                <div className="w-[80px]">
-                  {addons[0]?.key === addon.key && <Label>Type</Label>}
-                  <Input
-                    value={addon.category}
-                    onChange={(e) => updateAddon(addon.key, 'category', e.target.value)}
-                    placeholder="food"
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => removeAddon(addon.key)}
-                  className="p-2 text-[#7A6F63] hover:text-[#D4564E] transition-colors shrink-0"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
               </div>
             ))}
           </div>
@@ -310,7 +311,7 @@ export function PartyForm({ party, onSave, onClose, isSaving }: PartyFormProps) 
       </div>
 
       {/* Save bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#252220] border-t border-[#3D3530] px-5 py-3">
+      <div className="fixed bottom-0 left-0 right-0 bg-[#252220]/95 backdrop-blur-sm border-t border-[#3D3530] px-5 py-3">
         <div className="max-w-[480px] mx-auto flex gap-3">
           <button
             onClick={onClose}
@@ -351,12 +352,19 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       {...props}
+      style={{ colorScheme: 'dark', ...props.style }}
       className={`w-full h-9 rounded-lg border border-[#4A4039] bg-[#1E1B18] px-3 text-sm text-[#E8E0D4] placeholder:text-[#5A5048] focus:outline-none focus:ring-2 focus:ring-[#E7C76A]/25 focus:border-[#E7C76A]/40 transition-colors ${props.className ?? ''}`}
     />
   )
 }
 
 function EuroInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const handleBlur = () => {
+    if (!value) return
+    const num = parseFloat(value)
+    if (!isNaN(num)) onChange(num.toFixed(2))
+  }
+
   return (
     <div className="relative">
       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#7A6F63] pointer-events-none">
@@ -367,8 +375,9 @@ function EuroInput({ value, onChange }: { value: string; onChange: (v: string) =
         inputMode="decimal"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={'\u2014'}
-        className="w-full h-9 rounded-lg border border-[#4A4039] bg-[#1E1B18] pl-7 pr-3 text-right text-sm text-[#E8E0D4] placeholder:text-[#5A5048] focus:outline-none focus:ring-2 focus:ring-[#E7C76A]/25 focus:border-[#E7C76A]/40 transition-colors"
+        onBlur={handleBlur}
+        placeholder="0.00"
+        className="w-full h-9 rounded-lg border border-[#4A4039] bg-[#1E1B18] pl-7 pr-3 text-right text-sm text-[#E8E0D4] placeholder:text-[#5A5048] focus:outline-none focus:ring-2 focus:ring-[#E7C76A]/25 focus:border-[#E7C76A]/40 transition-colors tabular-nums"
       />
     </div>
   )
