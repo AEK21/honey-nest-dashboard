@@ -1,8 +1,8 @@
 export const SEED_CATEGORIES = [
   // Retail
   { name: 'toys', displayName: 'Toys', businessArea: 'retail', costMarginPct: 0.55, sortOrder: 1 },
-  { name: 'gifts', displayName: 'Gifts & Accessories', businessArea: 'retail', costMarginPct: 0.50, sortOrder: 2 },
-  { name: 'lifestyle', displayName: 'Lifestyle Products', businessArea: 'retail', costMarginPct: 0.50, sortOrder: 3 },
+  { name: 'gifts', displayName: 'Gifts & Accessories', businessArea: 'retail', costMarginPct: 0.50, sortOrder: 2, active: false },
+  { name: 'lifestyle', displayName: 'Lifestyle Products', businessArea: 'retail', costMarginPct: 0.50, sortOrder: 3, active: false },
   // Playroom / Café
   { name: 'entry_fees', displayName: 'Entry Fees', businessArea: 'playroom_cafe', costMarginPct: 0.10, sortOrder: 4 },
   { name: 'food', displayName: 'Food', businessArea: 'playroom_cafe', costMarginPct: 0.60, sortOrder: 5 },

@@ -1,4 +1,5 @@
 import { format } from 'date-fns'
+import { useState, useCallback, useRef } from 'react'
 import { toast } from 'sonner'
 import { usePageTitle } from '../../hooks/usePageTitle'
 import { useDailyEntry } from './hooks/useDailyEntry'
@@ -11,6 +12,8 @@ import { CostSection } from './components/CostSection'
 import type { CostEntry } from './components/CostSection'
 import { SaveButton } from './components/SaveButton'
 import { UnsavedChangesDialog } from './components/UnsavedChangesDialog'
+
+const ENTRY_FEE_PER_KID = 7
 
 export function DailyEntryPage() {
   const {
@@ -40,6 +43,34 @@ export function DailyEntryPage() {
 
   usePageTitle('Entry')
 
+  // Track whether the user has manually overridden entry fees
+  const [entryFeeOverride, setEntryFeeOverride] = useState(false)
+  const prevDateRef = useRef(dateStr)
+  if (prevDateRef.current !== dateStr) {
+    prevDateRef.current = dateStr
+    setEntryFeeOverride(false)
+  }
+
+  // Find entry_fees category id
+  const entryFeeCategoryId = data?.entries.find(
+    (e) => e.categoryName === 'entry_fees'
+  )?.categoryId
+
+  const handleKidsCountChange = useCallback(
+    (value: string) => {
+      setKidsCount(value)
+      if (!entryFeeOverride && entryFeeCategoryId != null) {
+        const kids = parseInt(value, 10)
+        const autoRevenue = !isNaN(kids) && kids > 0 ? String(kids * ENTRY_FEE_PER_KID) : ''
+        setRevenues((prev: Record<number, string>) => ({
+          ...prev,
+          [entryFeeCategoryId]: autoRevenue,
+        }))
+      }
+    },
+    [entryFeeOverride, entryFeeCategoryId, setKidsCount, setRevenues]
+  )
+
   // Group entries by businessArea (skip parties — Phase 4)
   const retailEntries =
     data?.entries.filter((e) => e.businessArea === 'retail') ?? []
@@ -49,6 +80,9 @@ export function DailyEntryPage() {
     data?.entries.filter((e) => e.businessArea !== 'parties') ?? []
 
   const handleRevenueChange = (categoryId: number, value: string) => {
+    if (categoryId === entryFeeCategoryId) {
+      setEntryFeeOverride(true)
+    }
     setRevenues((prev: Record<number, string>) => ({ ...prev, [categoryId]: value }))
   }
 
@@ -158,15 +192,23 @@ export function DailyEntryPage() {
 
         {playroomEntries.length > 0 && (
           <RevenueSection title="Playroom & Caf&#233;" accentColor="#BFD8D2">
-            {playroomEntries.map((entry) => (
-              <RevenueRow
-                key={entry.categoryId}
-                label={entry.displayName}
-                value={revenues[entry.categoryId] ?? ''}
-                onChange={(v) => handleRevenueChange(entry.categoryId, v)}
-              />
-            ))}
-            <KidsCountRow value={kidsCount} onChange={setKidsCount} />
+            {playroomEntries.map((entry) => {
+              const isEntryFee = entry.categoryName === 'entry_fees'
+              const autoCalcHint =
+                isEntryFee && !entryFeeOverride && kidsCount !== ''
+                  ? `${kidsCount} × €${ENTRY_FEE_PER_KID}`
+                  : undefined
+              return (
+                <RevenueRow
+                  key={entry.categoryId}
+                  label={entry.displayName}
+                  value={revenues[entry.categoryId] ?? ''}
+                  onChange={(v) => handleRevenueChange(entry.categoryId, v)}
+                  hint={autoCalcHint}
+                />
+              )
+            })}
+            <KidsCountRow value={kidsCount} onChange={handleKidsCountChange} />
           </RevenueSection>
         )}
 
