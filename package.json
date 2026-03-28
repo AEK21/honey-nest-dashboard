@@ -1,16 +1,22 @@
 {
   "name": "honey-nest-dashboard",
   "private": true,
-  "workspaces": ["client", "server", "shared"],
+  "workspaces": [
+    "client",
+    "server",
+    "shared"
+  ],
   "scripts": {
     "dev": "concurrently --names client,server --prefix-colors cyan,yellow \"npm run dev -w client\" \"npm run dev -w server\"",
-    "build": "npm run build -w shared && npm run build -w client",
+    "build": "npm run build -w client && node -e \"const fs=require('fs');fs.cpSync('client/dist','client-dist',{recursive:true})\"",
+    "start": "cross-env NODE_ENV=production tsx server/src/index.ts",
     "db:generate": "npm run db:generate -w server",
     "db:migrate": "npm run db:migrate -w server",
     "db:seed": "npm run db:seed -w server"
   },
   "devDependencies": {
     "concurrently": "^9.0.0",
+    "cross-env": "^10.1.0",
     "typescript": "^5.7.0"
   }
 }

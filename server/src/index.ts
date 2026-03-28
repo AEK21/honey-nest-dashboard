@@ -1,4 +1,5 @@
 import { serve } from '@hono/node-server'
+import { serveStatic } from '@hono/node-server/serve-static'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import health from './routes/health'
@@ -21,7 +22,14 @@ app.route('/api/dashboard', dashboardRoute)
 app.route('/api/parties', partiesRoute)
 app.route('/api/export', exportRoute)
 
-const port = 3001
+// In production, serve the built client files
+if (process.env.NODE_ENV === 'production') {
+  app.use('/*', serveStatic({ root: './client-dist' }))
+  // SPA fallback: serve index.html for any non-API, non-file route
+  app.get('/*', serveStatic({ root: './client-dist', path: 'index.html' }))
+}
+
+const port = parseInt(process.env.PORT || '3001', 10)
 console.log(`Server running on http://localhost:${port}`)
 serve({ fetch: app.fetch, port })
 
