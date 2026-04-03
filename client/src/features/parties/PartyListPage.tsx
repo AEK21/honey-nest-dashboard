@@ -18,6 +18,7 @@ export function PartyListPage() {
 
   const [formOpen, setFormOpen] = useState(false)
   const [editingParty, setEditingParty] = useState<Party | null>(null)
+  const [confirmingId, setConfirmingId] = useState<number | null>(null)
 
   usePageTitle('Parties')
   const monthLabel = format(monthDate, 'MMMM yyyy')
@@ -59,6 +60,34 @@ export function PartyListPage() {
       toast.success('Party deleted')
     } catch {
       toast.error("Couldn't delete")
+    }
+  }
+
+  const handleConfirm = async (party: Party) => {
+    setConfirmingId(party.id)
+    try {
+      await update(party.id, {
+        partyDate: party.partyDate,
+        partyTime: party.partyTime,
+        customerName: party.customerName,
+        contactPhone: party.contactPhone,
+        childName: party.childName,
+        childAge: party.childAge,
+        kidsCount: party.kidsCount,
+        adultsCount: party.adultsCount,
+        packageName: party.packageName,
+        packagePrice: party.packagePrice,
+        depositAmount: party.depositAmount,
+        status: 'booked',
+        eventType: party.eventType,
+        notes: party.notes,
+        addons: party.addons.map((a) => ({ addonName: a.addonName, addonPrice: a.addonPrice, quantity: a.quantity, category: a.category })),
+      })
+      toast.success('Booking confirmed')
+    } catch {
+      toast.error("Couldn't confirm — check your connection")
+    } finally {
+      setConfirmingId(null)
     }
   }
 
@@ -148,6 +177,8 @@ export function PartyListPage() {
                     party={party}
                     onEdit={() => handleEdit(party)}
                     onDelete={() => handleDelete(party)}
+                    onConfirm={() => handleConfirm(party)}
+                    isConfirming={confirmingId === party.id}
                   />
                 ))}
               </div>

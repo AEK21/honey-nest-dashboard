@@ -6,6 +6,7 @@ export interface PartyAddon {
   id?: number
   addonName: string
   addonPrice: number
+  quantity: number
   category: string | null
 }
 
@@ -14,6 +15,7 @@ export interface Party {
   partyDate: string
   partyTime: string | null
   customerName: string
+  contactPhone: string | null
   childName: string | null
   childAge: number | null
   kidsCount: number | null
@@ -33,6 +35,7 @@ export interface PartyFormData {
   partyDate: string
   partyTime: string | null
   customerName: string
+  contactPhone: string | null
   childName: string | null
   childAge: number | null
   kidsCount: number | null
@@ -43,7 +46,7 @@ export interface PartyFormData {
   status: 'inquiry' | 'booked' | 'completed' | 'cancelled'
   eventType: string | null
   notes: string | null
-  addons: { addonName: string; addonPrice: number; category: string | null }[]
+  addons: { addonName: string; addonPrice: number; quantity: number; category: string | null }[]
 }
 
 export function useParties() {

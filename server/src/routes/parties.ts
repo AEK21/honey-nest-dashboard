@@ -14,6 +14,7 @@ const validStatuses = ['inquiry', 'booked', 'completed', 'cancelled'] as const
 const addonSchema = z.object({
   addonName: z.string().min(1),
   addonPrice: z.number().min(0),
+  quantity: z.number().int().min(1).optional().default(1),
   category: z.string().nullable().optional(),
 })
 
@@ -21,6 +22,7 @@ const partySchema = z.object({
   partyDate: z.string().regex(dateRegex),
   partyTime: z.string().regex(timeRegex).nullable().optional(),
   customerName: z.string().min(1),
+  contactPhone: z.string().nullable().optional(),
   childName: z.string().nullable().optional(),
   childAge: z.number().int().min(0).nullable().optional(),
   kidsCount: z.number().int().min(0).nullable().optional(),
@@ -71,7 +73,7 @@ partiesRoute.get('/', async (c) => {
 
   const result = allParties.map((p) => {
     const addons = addonsByParty.get(p.id) ?? []
-    const addonsTotal = addons.reduce((s, a) => s + a.addonPrice, 0)
+    const addonsTotal = addons.reduce((s, a) => s + a.addonPrice * (a.quantity ?? 1), 0)
     return {
       ...p,
       addons,
@@ -92,7 +94,7 @@ partiesRoute.get('/:id', async (c) => {
   if (!party.length) return c.json({ error: 'not found' }, 404)
 
   const addons = await db.select().from(partyAddons).where(eq(partyAddons.partyId, id))
-  const addonsTotal = addons.reduce((s, a) => s + a.addonPrice, 0)
+  const addonsTotal = addons.reduce((s, a) => s + a.addonPrice * (a.quantity ?? 1), 0)
 
   return c.json({
     ...party[0],
@@ -113,12 +115,13 @@ partiesRoute.post('/', async (c) => {
 
   const result = await db.run(sql`
     INSERT INTO parties (
-      party_date, party_time, customer_name, child_name, child_age,
+      party_date, party_time, customer_name, contact_phone, child_name, child_age,
       kids_count, adults_count, package_name, package_price,
       deposit_amount, status, event_type, notes, updated_at
     ) VALUES (
       ${partyData.partyDate}, ${partyData.partyTime ?? null},
-      ${partyData.customerName}, ${partyData.childName ?? null},
+      ${partyData.customerName}, ${partyData.contactPhone ?? null},
+      ${partyData.childName ?? null},
       ${partyData.childAge ?? null}, ${partyData.kidsCount ?? null},
       ${partyData.adultsCount ?? null}, ${partyData.packageName},
       ${partyData.packagePrice}, ${partyData.depositAmount ?? null},
@@ -131,8 +134,8 @@ partiesRoute.post('/', async (c) => {
 
   for (const addon of addons) {
     await db.run(sql`
-      INSERT INTO party_addons (party_id, addon_name, addon_price, category)
-      VALUES (${partyId}, ${addon.addonName}, ${addon.addonPrice}, ${addon.category ?? null})
+      INSERT INTO party_addons (party_id, addon_name, addon_price, quantity, category)
+      VALUES (${partyId}, ${addon.addonName}, ${addon.addonPrice}, ${addon.quantity ?? 1}, ${addon.category ?? null})
     `)
   }
 
@@ -159,6 +162,7 @@ partiesRoute.put('/:id', async (c) => {
       party_date = ${partyData.partyDate},
       party_time = ${partyData.partyTime ?? null},
       customer_name = ${partyData.customerName},
+      contact_phone = ${partyData.contactPhone ?? null},
       child_name = ${partyData.childName ?? null},
       child_age = ${partyData.childAge ?? null},
       kids_count = ${partyData.kidsCount ?? null},
@@ -177,8 +181,8 @@ partiesRoute.put('/:id', async (c) => {
   await db.delete(partyAddons).where(eq(partyAddons.partyId, id))
   for (const addon of addons) {
     await db.run(sql`
-      INSERT INTO party_addons (party_id, addon_name, addon_price, category)
-      VALUES (${id}, ${addon.addonName}, ${addon.addonPrice}, ${addon.category ?? null})
+      INSERT INTO party_addons (party_id, addon_name, addon_price, quantity, category)
+      VALUES (${id}, ${addon.addonName}, ${addon.addonPrice}, ${addon.quantity ?? 1}, ${addon.category ?? null})
     `)
   }
 

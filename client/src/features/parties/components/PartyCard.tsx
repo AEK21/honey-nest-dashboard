@@ -1,11 +1,13 @@
 import { format, parseISO } from 'date-fns'
-import { Pencil, Trash2, Users, Baby } from 'lucide-react'
+import { Pencil, Trash2, Users, Baby, CheckCheck } from 'lucide-react'
 import type { Party } from '../hooks/useParties'
 
 interface PartyCardProps {
   party: Party
   onEdit: () => void
   onDelete: () => void
+  onConfirm?: () => void
+  isConfirming?: boolean
 }
 
 const statusConfig = {
@@ -15,7 +17,7 @@ const statusConfig = {
   cancelled: { label: 'Cancelled', color: 'bg-[#D4564E]/20 text-[#D4564E]' },
 } as const
 
-export function PartyCard({ party, onEdit, onDelete }: PartyCardProps) {
+export function PartyCard({ party, onEdit, onDelete, onConfirm, isConfirming }: PartyCardProps) {
   const st = statusConfig[party.status]
   const dateLabel = format(parseISO(party.partyDate), 'EEE, MMM d')
   const balance =
@@ -80,19 +82,33 @@ export function PartyCard({ party, onEdit, onDelete }: PartyCardProps) {
         </p>
       )}
 
-      <div className="flex justify-end gap-1 mt-2.5">
-        <button
-          onClick={onEdit}
-          className="p-1.5 rounded-lg text-[#7A6F63] hover:text-[#C4B8A8] hover:bg-[#3D3530]/50 transition-colors"
-        >
-          <Pencil className="w-3.5 h-3.5" />
-        </button>
-        <button
-          onClick={onDelete}
-          className="p-1.5 rounded-lg text-[#7A6F63] hover:text-[#D4564E] hover:bg-[#D4564E]/10 transition-colors"
-        >
-          <Trash2 className="w-3.5 h-3.5" />
-        </button>
+      <div className="flex items-center justify-between mt-2.5">
+        {party.status === 'inquiry' && onConfirm ? (
+          <button
+            onClick={onConfirm}
+            disabled={isConfirming}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#E7C76A]/15 border border-[#E7C76A]/40 text-[#E7C76A] text-[12px] font-medium hover:bg-[#E7C76A]/25 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+          >
+            <CheckCheck className="w-3.5 h-3.5" />
+            {isConfirming ? 'Saving…' : 'Confirm Booking'}
+          </button>
+        ) : (
+          <span />
+        )}
+        <div className="flex gap-1">
+          <button
+            onClick={onEdit}
+            className="p-1.5 rounded-lg text-[#7A6F63] hover:text-[#C4B8A8] hover:bg-[#3D3530]/50 transition-colors"
+          >
+            <Pencil className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={onDelete}
+            className="p-1.5 rounded-lg text-[#7A6F63] hover:text-[#D4564E] hover:bg-[#D4564E]/10 transition-colors"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
     </div>
   )

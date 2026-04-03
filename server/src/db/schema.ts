@@ -49,6 +49,7 @@ export const parties = sqliteTable('parties', {
   packageName: text('package_name').notNull(),
   packagePrice: real('package_price').notNull(),
   depositAmount: real('deposit_amount'),
+  contactPhone: text('contact_phone'),
   status: text('status').notNull().default('booked'),
   eventType: text('event_type'),
   notes: text('notes'),
@@ -62,8 +63,22 @@ export const partyAddons = sqliteTable('party_addons', {
   partyId: integer('party_id').notNull().references(() => parties.id, { onDelete: 'cascade' }),
   addonName: text('addon_name').notNull(),
   addonPrice: real('addon_price').notNull(),
+  quantity: integer('quantity').notNull().default(1),
   category: text('category'),
   createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+})
+
+export const tameioEntries = sqliteTable('tameio_entries', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  entryDate: text('entry_date').notNull().unique(),
+  cash: real('cash').notNull().default(0),
+  card: real('card').notNull().default(0),
+  aValue: real('a_value').notNull().default(0),
+  lastDayCash: real('last_day_cash').notNull().default(0),
+  exoda: real('exoda').notNull().default(0),
+  cashSeKing: real('cash_se_king').notNull().default(0),
+  createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+  updatedAt: text('updated_at').notNull().default(sql`(datetime('now'))`),
 })
 
 export const products = sqliteTable('products', {
