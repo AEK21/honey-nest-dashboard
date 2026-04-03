@@ -12,6 +12,9 @@ import { CostSection } from './components/CostSection'
 import type { CostEntry } from './components/CostSection'
 import { SaveButton } from './components/SaveButton'
 import { UnsavedChangesDialog } from './components/UnsavedChangesDialog'
+import { TameioSection } from './components/TameioSection'
+import { useTameio } from './hooks/useTameio'
+import type { TameioState } from './hooks/useTameio'
 
 const ENTRY_FEE_PER_KID = 7
 
@@ -42,6 +45,8 @@ export function DailyEntryPage() {
   } = useDailyEntry()
 
   usePageTitle('Entry')
+
+  const tameio = useTameio(dateStr)
 
   // Track whether the user has manually overridden entry fees
   const [entryFeeOverride, setEntryFeeOverride] = useState(false)
@@ -133,7 +138,9 @@ export function DailyEntryPage() {
 
   const handleSave = async () => {
     try {
-      await save(buildPayload())
+      const saves: Promise<unknown>[] = [save(buildPayload())]
+      if (tameio.hasAnyValue) saves.push(tameio.save())
+      await Promise.all(saves)
       toast.success(`${format(selectedDate, 'MMMM d')} saved`)
     } catch {
       toast.error("Couldn't save \u2014 check your connection")
@@ -219,6 +226,14 @@ export function DailyEntryPage() {
             onCostBasisChange={handleCostBasisChange}
           />
         )}
+
+        <TameioSection
+          form={tameio.form}
+          onChange={(field: keyof TameioState, value: string) =>
+            tameio.setForm(prev => ({ ...prev, [field]: value }))
+          }
+          synolo={tameio.synolo}
+        />
 
         <SaveButton
           onSave={handleSave}

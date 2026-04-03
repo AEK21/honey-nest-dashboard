@@ -8,6 +8,7 @@ import dailyEntriesRoute from './routes/daily-entries'
 import dashboardRoute from './routes/dashboard'
 import partiesRoute from './routes/parties'
 import exportRoute from './routes/export'
+import tameioRoute from './routes/tameio'
 
 // Ensure DB is migrated and seeded on startup
 import './db/migrate-and-seed'
@@ -21,6 +22,7 @@ app.route('/api/daily-entries', dailyEntriesRoute)
 app.route('/api/dashboard', dashboardRoute)
 app.route('/api/parties', partiesRoute)
 app.route('/api/export', exportRoute)
+app.route('/api/tameio', tameioRoute)
 
 // In production, serve the built client files
 if (process.env.NODE_ENV === 'production') {
